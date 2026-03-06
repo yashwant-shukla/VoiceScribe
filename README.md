@@ -9,7 +9,7 @@ Speak → get text → polish into a clean prompt → paste into Claude or anywh
 ## Quick Start (macOS)
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/VoiceScribe.git
+git clone https://github.com/yashwant-shukla/VoiceScribe.git
 cd VoiceScribe
 chmod +x create_app.sh
 ./create_app.sh
