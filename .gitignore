@@ -1,0 +1,37 @@
+# macOS
+.DS_Store
+._*
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+*.egg
+
+# Virtual environment
+.venv/
+
+# Build caches (created by create_app.sh)
+.build_wheels/
+.build_ollama_models/
+.build_whisper_cache/
+build/
+
+# App bundle (built artifact — not source)
+VoiceScribe.app/
+
+# Logs
+*.log
+.voicescribe.log
+
+# Privacy consent (user-specific)
+.privacy_accepted
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
