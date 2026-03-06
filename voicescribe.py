@@ -94,6 +94,24 @@ WHISPER_LABELS = {
 WHISPER_SIZES = list(WHISPER_LABELS.keys())
 WHISPER_DISPLAY_NAMES = [WHISPER_LABELS[s][0] for s in WHISPER_SIZES]
 
+LANGUAGES = {
+    "Auto-detect": None,
+    "English": "en",
+    "Hindi": "hi",
+    "Spanish": "es",
+    "French": "fr",
+    "German": "de",
+    "Japanese": "ja",
+    "Chinese": "zh",
+    "Korean": "ko",
+    "Portuguese": "pt",
+    "Italian": "it",
+    "Dutch": "nl",
+    "Russian": "ru",
+    "Arabic": "ar",
+    "Turkish": "tr",
+}
+
 FONT_FAMILY = "SF Pro" if IS_MAC else "Helvetica Neue"
 FONT_FALLBACK = ("Helvetica Neue", "Helvetica", "Arial")
 
@@ -714,6 +732,7 @@ class VoiceScribe:
         # Microphone selection
         self._mic_devices = []  # [(device_index, device_name), ...]
         self._selected_mic_index = None  # None = system default
+        self._selected_language = None   # None = auto-detect
 
         # Ollama — use bundled binary if available (set by .app launcher)
         bundled_ollama = os.environ.get("VOICESCRIBE_BUNDLED_OLLAMA")
@@ -1052,7 +1071,32 @@ class VoiceScribe:
         self.mic_combo.pack(side=tk.RIGHT)
         self.mic_combo.bind("<<ComboboxSelected>>", self._on_mic_change)
 
-        # Row 1: Transcription Accuracy
+        # Row 1: Language
+        row_lang = tk.Frame(inner, bg=c("settings_bg"))
+        row_lang.pack(fill=tk.X, pady=(0, 8))
+        self._themed_frames.append(row_lang)
+
+        lang_label = tk.Label(row_lang, text="Language",
+                              fg=c("text"), bg=c("settings_bg"),
+                              font=(FONT_FALLBACK[0], 12))
+        lang_label.pack(side=tk.LEFT)
+        self._themed_labels.append(("text", "settings_bg", lang_label))
+
+        self.lang_var = tk.StringVar(value="Auto-detect")
+        self.lang_combo = ttk.Combobox(
+            row_lang, textvariable=self.lang_var,
+            values=list(LANGUAGES.keys()), state="readonly", width=16
+        )
+        self.lang_combo.pack(side=tk.RIGHT)
+        self.lang_combo.bind("<<ComboboxSelected>>", self._on_language_change)
+
+        lang_hint = tk.Label(row_lang, text="Faster when set explicitly",
+                             fg=c("text_secondary"), bg=c("settings_bg"),
+                             font=(FONT_FALLBACK[0], 10))
+        lang_hint.pack(side=tk.RIGHT, padx=(0, 8))
+        self._themed_labels.append(("text_secondary", "settings_bg", lang_hint))
+
+        # Row 2: Transcription Accuracy
         row1 = tk.Frame(inner, bg=c("settings_bg"))
         row1.pack(fill=tk.X, pady=(0, 8))
         self._themed_frames.append(row1)
@@ -1365,6 +1409,12 @@ class VoiceScribe:
         # Warn if currently recording
         if self.is_recording:
             self._set_status("warning", "Mic change takes effect on next recording")
+
+    def _on_language_change(self, event=None):
+        """Handle language dropdown selection change."""
+        selected = self.lang_var.get()
+        self._selected_language = LANGUAGES.get(selected)
+        self.logger.info(f"Language changed: {selected} (code={self._selected_language})")
 
     def _update_mic_indicator(self):
         """Update the mic indicator label in the main UI."""
@@ -1758,7 +1808,9 @@ class VoiceScribe:
                 audio_int16 = (audio * 32767).astype(np.int16)
                 wf.writeframes(audio_int16.tobytes())
 
-            segments, info = self.model.transcribe(temp_path, beam_size=5)
+            segments, info = self.model.transcribe(
+                temp_path, beam_size=5, language=self._selected_language
+            )
             text = " ".join(seg.text for seg in segments).strip()
 
             if text:
