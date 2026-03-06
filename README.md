@@ -52,6 +52,7 @@ After setup, launch from **Launchpad**, **Spotlight** (Cmd+Space → VoiceScribe
 Click **⚙ Settings** to expand:
 
 - **Microphone** — select which input device to use (built-in, Bluetooth, USB). Refreshes automatically every 30 seconds and has a manual refresh button.
+- **Language** — set the transcription language explicitly (English, Hindi, Spanish, French, etc.) for faster and more accurate results, or leave on Auto-detect.
 - **Transcription Accuracy** — choose between Fast, Balanced, High, or Best.
 - **AI Polish Model** — select which Ollama model to use.
 - **AI Engine (Ollama)** — start or stop the bundled AI engine.
